@@ -23,6 +23,7 @@ after_initialize do
 
   module ::DiscoursePoll
     DEFAULT_POLL_NAME ||= "poll"
+    HAS_POLLS ||= "has_polls"
 
     autoload :PostValidator,  "#{Rails.root}/plugins/poll/lib/post_validator"
     autoload :PollsValidator, "#{Rails.root}/plugins/poll/lib/polls_validator"
@@ -32,8 +33,8 @@ after_initialize do
     require_relative "app/models/poll_option"
     require_relative "app/models/poll"
 
-    require_relative "app/serializers/poll_serializer"
     require_relative "app/serializers/poll_option_serializer"
+    require_relative "app/serializers/poll_serializer"
 
     class Engine < ::Rails::Engine
       engine_name PLUGIN_NAME
@@ -69,7 +70,7 @@ after_initialize do
           raise StandardError.new I18n.t("poll.poll_must_be_open_to_vote") if poll.closed?
 
           # remove options that aren't available in the poll
-          available_options = poll.poll_options.map { |option| option.digest }.to_set
+          available_options = poll.poll_options.map { |o| o.digest }.to_set
           options.select! { |o| available_options.include?(o) }
 
           raise StandardError.new I18n.t("poll.requires_at_least_1_valid_option") if options.empty?
@@ -337,7 +338,7 @@ after_initialize do
   Post.class_eval do
     attr_accessor :extracted_polls
 
-    has_many :polls, dependent: :delete_all
+    has_many :polls, dependent: :destroy
 
     after_save do
       next if self.extracted_polls.blank? || !self.extracted_polls.is_a?(Hash)
@@ -349,6 +350,8 @@ after_initialize do
         polls.values.each do |poll|
           DiscoursePoll::Poll.create!(post.id, poll)
         end
+        post.custom_fields[DiscoursePoll::HAS_POLLS] = true
+        post.save_custom_fields(true)
       end
     end
   end
@@ -427,17 +430,27 @@ after_initialize do
     PollVote.where(user: user).delete_all
   end
 
+  register_post_custom_field_type(DiscoursePoll::HAS_POLLS, :boolean)
+
+  topic_view_post_custom_fields_whitelister { [DiscoursePoll::HAS_POLLS] }
+
   add_to_class(:topic_view, :polls) do
     @polls ||= begin
       polls = {}
 
-      Poll
-        .includes(poll_options: :poll_votes, poll_votes: :poll_option)
-        .where(post_id: filtered_post_ids)
-        .each do |p|
-          polls[p.post_id] ||= []
-          polls[p.post_id] << p
-        end
+      post_with_polls = @post_custom_fields
+        .select { |_, custom_fields| custom_fields[DiscoursePoll::HAS_POLLS] }
+        .map { |post_id| post_id }
+
+      if post_with_polls.present?
+        Poll
+          .includes(poll_options: :poll_votes, poll_votes: :poll_option)
+          .where(post_id: post_with_polls)
+          .each do |p|
+            polls[p.post_id] ||= []
+            polls[p.post_id] << p
+          end
+      end
 
       polls
     end

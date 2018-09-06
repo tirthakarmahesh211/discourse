@@ -70,6 +70,14 @@ module DiscoursePoll
         end
       end
 
+      if ::Poll.exists?(post: post)
+        post.custom_fields[HAS_POLLS] = true
+      else
+        post.custom_fields.delete(HAS_POLLS)
+      end
+
+      post.save_custom_fields(true)
+
       if has_changed
         polls = ::Poll.includes(poll_options: :poll_votes).where(post: post)
         polls = ActiveModel::ArraySerializer.new(polls, each_serializer: PollSerializer, root: false).as_json

@@ -7,7 +7,7 @@ class Poll < ActiveRecord::Base
   belongs_to :post
 
   has_many :poll_options, dependent: :destroy
-  has_many :poll_votes, dependent: :delete_all
+  has_many :poll_votes
 
   validates :type, inclusion: { in: %w(regular multiple number) }
   validates :status, inclusion: { in: %w(open closed) }
@@ -39,7 +39,7 @@ class Poll < ActiveRecord::Base
 
   def has_voted?(user)
     return false unless user
-    poll_votes.any? { |vote| vote.user_id == user.id }
+    poll_votes.any? { |v| v.user_id == user.id }
   end
 
   def can_see_voters?(user)

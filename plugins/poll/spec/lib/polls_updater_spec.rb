@@ -53,6 +53,8 @@ describe DiscoursePoll::PollsUpdater do
           expect(poll).to be
           expect(poll.poll_options.size).to eq(2)
 
+          expect(poll.post.custom_fields[DiscoursePoll::HAS_POLLS]).to eq(true)
+
           expect(message.data[:post_id]).to eq(post.id)
           expect(message.data[:polls][0][:name]).to eq(poll.name)
         end
@@ -76,13 +78,19 @@ describe DiscoursePoll::PollsUpdater do
           expect(poll.poll_options.size).to eq(3)
           expect(poll.poll_votes.size).to eq(0)
 
+          expect(poll.post.custom_fields[DiscoursePoll::HAS_POLLS]).to eq(true)
+
           expect(message.data[:post_id]).to eq(post.id)
           expect(message.data[:polls][0][:name]).to eq(poll.name)
         end
 
         it "deletes the poll" do
           update(post, {})
+
+          post.reload
+
           expect(Poll.where(post: post).exists?).to eq(false)
+          expect(post.custom_fields[DiscoursePoll::HAS_POLLS]).to eq(nil)
         end
 
       end
