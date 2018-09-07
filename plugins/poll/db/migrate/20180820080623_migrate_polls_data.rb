@@ -3,6 +3,12 @@ class MigratePollsData < ActiveRecord::Migration[5.2]
     PG::Connection.escape_string(text)
   end
 
+  POLL_TYPES ||= {
+    "regular" => 0,
+    "multiple" => 1,
+    "number" => 2,
+  }
+
   def up
     sql = <<~SQL
       SELECT polls.post_id
@@ -40,9 +46,9 @@ class MigratePollsData < ActiveRecord::Migration[5.2]
 
         r.polls.values.each do |poll|
           name = poll["name"].presence || "poll"
-          type = (poll["type"].presence || "")[/(regular|multiple|number)/, 1] || "regular"
-          status = poll["status"] == "open" ? "open" : "closed"
-          visibility = poll["public"] == "t" ? "public" : "private"
+          type = POLL_TYPES[(poll["type"].presence || "")[/(regular|multiple|number)/, 1] || "regular"]
+          status = poll["status"] == "open" ? 0 : 1
+          visibility = poll["public"] == "t" ? 1 : 0
           close_at = (Time.zone.parse(poll["close"]) rescue nil)
           min = poll["min"].to_i
           max = poll["max"].to_i
@@ -64,9 +70,9 @@ class MigratePollsData < ActiveRecord::Migration[5.2]
             ) VALUES (
               #{r.post_id},
               '#{escape(name)}',
-              '#{escape(type)}',
-              '#{escape(status)}',
-              '#{escape(visibility)}',
+              #{type},
+              #{status},
+              #{visibility},
               #{close_at ? "'#{close_at}'" : "NULL"},
               #{min > 0 ? min : "NULL"},
               #{max > min ? max : "NULL"},

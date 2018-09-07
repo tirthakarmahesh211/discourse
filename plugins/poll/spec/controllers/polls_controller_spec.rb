@@ -7,8 +7,8 @@ describe ::DiscoursePoll::PollsController do
   let(:topic) { Fabricate(:topic) }
   let(:poll)  { Fabricate(:post, topic: topic, user: user, raw: "[poll]\n- A\n- B\n[/poll]") }
   let(:multi_poll)  { Fabricate(:post, topic: topic, user: user, raw: "[poll min=1 max=2 type=multiple public=true]\n- A\n- B\n[/poll]") }
-  let(:public_poll_vote) { Fabricate(:post, topic: topic, user: user, raw: "[poll public=true results=vote]\n- A\n- B\n[/poll]") }
-  let(:public_poll_closed) { Fabricate(:post, topic: topic, user: user, raw: "[poll public=true results=closed]\n- A\n- B\n[/poll]") }
+  let(:public_poll_on_vote) { Fabricate(:post, topic: topic, user: user, raw: "[poll public=true results=on_vote]\n- A\n- B\n[/poll]") }
+  let(:public_poll_on_close) { Fabricate(:post, topic: topic, user: user, raw: "[poll public=true results=on_close]\n- A\n- B\n[/poll]") }
 
   describe "#vote" do
 
@@ -199,13 +199,13 @@ describe ::DiscoursePoll::PollsController do
 
     it "ensures voters can only be seen after casting a vote" do
       put :vote, params: {
-        post_id: public_poll_vote.id, poll_name: "poll", options: [first]
+        post_id: public_poll_on_vote.id, poll_name: "poll", options: [first]
       }, format: :json
 
       expect(response.status).to eq(200)
 
       get :voters, params: {
-        poll_name: "poll", post_id: public_poll_vote.id
+        poll_name: "poll", post_id: public_poll_on_vote.id
       }, format: :json
 
       expect(response.status).to eq(200)
@@ -217,19 +217,19 @@ describe ::DiscoursePoll::PollsController do
       user2 = log_in
 
       get :voters, params: {
-        poll_name: "poll", post_id: public_poll_vote.id
+        poll_name: "poll", post_id: public_poll_on_vote.id
       }, format: :json
 
       expect(response.status).to eq(422)
 
       put :vote, params: {
-        post_id: public_poll_vote.id, poll_name: "poll", options: [second]
+        post_id: public_poll_on_vote.id, poll_name: "poll", options: [second]
       }, format: :json
 
       expect(response.status).to eq(200)
 
       get :voters, params: {
-        poll_name: "poll", post_id: public_poll_vote.id
+        poll_name: "poll", post_id: public_poll_on_vote.id
       }, format: :json
 
       expect(response.status).to eq(200)
@@ -242,25 +242,25 @@ describe ::DiscoursePoll::PollsController do
 
     it "ensures voters can only be seen when poll is closed" do
       put :vote, params: {
-        post_id: public_poll_closed.id, poll_name: "poll", options: [first]
+        post_id: public_poll_on_close.id, poll_name: "poll", options: [first]
       }, format: :json
 
       expect(response.status).to eq(200)
 
       get :voters, params: {
-        poll_name: "poll", post_id: public_poll_closed.id
+        poll_name: "poll", post_id: public_poll_on_close.id
       }, format: :json
 
       expect(response.status).to eq(422)
 
       put :toggle_status, params: {
-        post_id: public_poll_closed.id, poll_name: "poll", status: "closed"
+        post_id: public_poll_on_close.id, poll_name: "poll", status: "closed"
       }, format: :json
 
       expect(response.status).to eq(200)
 
       get :voters, params: {
-        poll_name: "poll", post_id: public_poll_closed.id
+        poll_name: "poll", post_id: public_poll_on_close.id
       }, format: :json
 
       expect(response.status).to eq(200)

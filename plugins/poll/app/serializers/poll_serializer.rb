@@ -12,21 +12,19 @@ class PollSerializer < ApplicationSerializer
              :close
 
   def public
-    object.public?
+    true
   end
 
   def include_public?
-    object.public?
+    object.everyone?
   end
 
   def include_min?
-    object.min.present? &&
-    (object.number? || object.multiple?)
+    object.min.present? && (object.number? || object.multiple?)
   end
 
   def include_max?
-    object.max.present? &&
-    (object.number? || object.multiple?)
+    object.max.present? && (object.number? || object.multiple?)
   end
 
   def include_step?

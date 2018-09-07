@@ -19,22 +19,21 @@ DATA_PREFIX ||= "data-poll-"
 
 after_initialize do
 
-  require File.expand_path("../jobs/regular/close_poll", __FILE__)
+  [
+    "../app/models/poll_vote",
+    "../app/models/poll_option",
+    "../app/models/poll",
+    "../app/serializers/poll_option_serializer",
+    "../app/serializers/poll_serializer",
+    "../lib/polls_validator",
+    "../lib/polls_updater",
+    "../lib/post_validator",
+    "../jobs/regular/close_poll",
+  ].each { |path| require File.expand_path(path, __FILE__) }
 
   module ::DiscoursePoll
-    DEFAULT_POLL_NAME ||= "poll"
     HAS_POLLS ||= "has_polls"
-
-    autoload :PostValidator,  "#{Rails.root}/plugins/poll/lib/post_validator"
-    autoload :PollsValidator, "#{Rails.root}/plugins/poll/lib/polls_validator"
-    autoload :PollsUpdater,   "#{Rails.root}/plugins/poll/lib/polls_updater"
-
-    require_relative "app/models/poll_vote"
-    require_relative "app/models/poll_option"
-    require_relative "app/models/poll"
-
-    require_relative "app/serializers/poll_option_serializer"
-    require_relative "app/serializers/poll_serializer"
+    DEFAULT_POLL_NAME ||= "poll"
 
     class Engine < ::Rails::Engine
       engine_name PLUGIN_NAME
@@ -67,7 +66,7 @@ after_initialize do
           poll = Poll.includes(poll_options: :poll_votes).find_by(post_id: post_id, name: poll_name)
 
           raise StandardError.new I18n.t("poll.no_poll_with_this_name", name: poll_name) unless poll
-          raise StandardError.new I18n.t("poll.poll_must_be_open_to_vote") if poll.closed?
+          raise StandardError.new I18n.t("poll.poll_must_be_open_to_vote") if poll.is_closed?
 
           # remove options that aren't available in the poll
           available_options = poll.poll_options.map { |o| o.digest }.to_set
@@ -235,7 +234,7 @@ after_initialize do
           close_at: (Time.zone.parse(poll["close"]) rescue nil),
           type: poll["type"].presence || "regular",
           status: poll["status"].presence || "open",
-          visibility: poll["public"] == "true" ? "public" : "private",
+          visibility: poll["public"] == "true" ? "everyone" : "secret",
           results: poll["results"].presence || "always",
           min: poll["min"],
           max: poll["max"],

@@ -4,10 +4,10 @@ class CreatePollsTables < ActiveRecord::Migration[5.2]
       t.references :post, index: true, foreign_key: true
       t.string :name, null: false, default: "poll"
       t.datetime :close_at
-      t.string :type, null: false, default: "regular"
-      t.string :status, null: false, default: "open"
-      t.string :visibility, null: false, default: "private"
-      t.string :results, null: false, default: "always"
+      t.integer :type, null: false, default: 0
+      t.integer :status, null: false, default: 0
+      t.integer :results, null: false, default: 0
+      t.integer :visibility, null: false, default: 0
       t.integer :min
       t.integer :max
       t.integer :step
