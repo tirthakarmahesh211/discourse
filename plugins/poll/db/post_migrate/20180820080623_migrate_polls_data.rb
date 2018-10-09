@@ -47,7 +47,7 @@ class MigratePollsData < ActiveRecord::Migration[5.2]
         name = poll["name"].presence || "poll"
         type = POLL_TYPES[(poll["type"].presence || "")[/(regular|multiple|number)/, 1] || "regular"]
         status = poll["status"] == "open" ? 0 : 1
-        visibility = poll["public"] == "t" ? 1 : 0
+        visibility = poll["public"] == "true" ? 1 : 0
         close_at = (Time.zone.parse(poll["close"]) rescue nil)
         min = poll["min"].to_i
         max = poll["max"].to_i
