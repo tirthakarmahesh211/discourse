@@ -49,3 +49,27 @@ class Poll < ActiveRecord::Base
     everyone? && can_see_results?(user)
   end
 end
+
+# == Schema Information
+#
+# Table name: polls
+#
+#  id         :bigint(8)        not null, primary key
+#  post_id    :bigint(8)
+#  name       :string           default("poll"), not null
+#  close_at   :datetime
+#  type       :integer          default("regular"), not null
+#  status     :integer          default("open"), not null
+#  results    :integer          default("always"), not null
+#  visibility :integer          default("secret"), not null
+#  min        :integer
+#  max        :integer
+#  step       :integer
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+# Indexes
+#
+#  index_polls_on_post_id           (post_id)
+#  index_polls_on_post_id_and_name  (post_id,name) UNIQUE
+#

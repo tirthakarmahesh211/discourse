@@ -4,3 +4,20 @@ class PollOption < ActiveRecord::Base
 
   default_scope { order(created_at: :asc) }
 end
+
+# == Schema Information
+#
+# Table name: poll_options
+#
+#  id         :bigint(8)        not null, primary key
+#  poll_id    :bigint(8)
+#  digest     :string           not null
+#  html       :text             not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+# Indexes
+#
+#  index_poll_options_on_poll_id             (poll_id)
+#  index_poll_options_on_poll_id_and_digest  (poll_id,digest) UNIQUE
+#
