@@ -228,10 +228,15 @@ after_initialize do
       end
 
       def create!(post_id, poll)
+        close_at = begin
+          Time.zone.parse(poll["close"])
+        rescue ArgumentError
+        end
+
         created_poll = Poll.create!(
           post_id: post_id,
           name: poll["name"].presence || "poll",
-          close_at: (Time.zone.parse(poll["close"]) rescue nil),
+          close_at: close_at,
           type: poll["type"].presence || "regular",
           status: poll["status"].presence || "open",
           visibility: poll["public"] == "true" ? "everyone" : "secret",
