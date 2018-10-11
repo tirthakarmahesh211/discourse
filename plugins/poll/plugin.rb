@@ -74,21 +74,21 @@ after_initialize do
 
           raise StandardError.new I18n.t("poll.requires_at_least_1_valid_option") if options.empty?
 
-          old_option_ids = poll
-            .poll_options
-            .select { |o| o.poll_votes.any? { |v| v.user_id == user.id } }
-            .map { |o| o.id }
-
-          new_option_ids = poll
-            .poll_options
-            .select { |o| options.include?(o.digest) }
-            .map { |o| o.id }
+          new_option_ids = poll.poll_options.each_with_object([]) do |option, obj|
+            obj << option.id if options.include?(option.digest)
+          end
 
           # remove non-selected votes
           PollVote
             .where(poll: poll, user: user)
             .where.not(poll_option_id: new_option_ids)
             .delete_all
+
+          old_option_ids = poll.poll_options.each_with_object([]) do |option, obj|
+            if option.poll_votes.any? { |v| v.user_id == user.id }
+              obj << option.id
+            end
+          end
 
           # create missing votes
           (new_option_ids - old_option_ids).each do |option_id|
