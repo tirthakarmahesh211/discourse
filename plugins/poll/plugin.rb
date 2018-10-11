@@ -437,8 +437,8 @@ after_initialize do
     @polls ||= begin
       polls = {}
 
-      post_with_polls = @post_custom_fields.each_with_object([]) do |_, custom_fields, obj|
-        obj << post_id if custom_fields[DiscoursePoll::HAS_POLLS]
+      post_with_polls = @post_custom_fields.each_with_object([]) do |fields, obj|
+        obj << fields[0] if fields[1][DiscoursePoll::HAS_POLLS]
       end
 
       if post_with_polls.present?
