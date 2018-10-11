@@ -9,6 +9,82 @@ RSpec.describe MigratePollsData do
   let!(:user5) { Fabricate(:user, id: 5) }
   let(:post) { Fabricate(:post, user: user) }
 
+  describe 'for a number poll' do
+    before do
+      post.custom_fields = {
+        "polls" => {
+          "poll" => {
+            "options" => [
+              { "id" => "4d8a15e3cc35750f016ce15a43937620", "html" => "1", "votes" => 0 },
+              { "id" => "aa2393b424f2f395abb63bf785760a3b", "html" => "4", "votes" => 0 },
+              { "id" => "9ab1070dec27185440cdabb4948a5e9a", "html" => "7", "votes" => 1 },
+              { "id" => "46c01f638a50d86e020f47469733b8be", "html" => "10", "votes" => 0 },
+              { "id" => "b4f15431e07443c372d521e4ed131abe", "html" => "13", "votes" => 0 },
+              { "id" => "4e885ead68ff4456f102843df9fbbd7f", "html" => "16", "votes" => 0 },
+              { "id" => "eb8661f072794ea57baa7827cd8ffc88", "html" => "19", "votes" => 0 }
+            ],
+            "voters" => 1,
+            "name" => "poll",
+            "status" => "open",
+            "type" => "number",
+            "min" => "1",
+            "max" => "20",
+            "step" => "3"
+          },
+        },
+        "polls-votes" => {
+          "1" => {
+            "poll" => [
+              "9ab1070dec27185440cdabb4948a5e9a"
+            ]
+          }
+        }
+      }
+
+      post.save_custom_fields
+    end
+
+    it "should migrate the data correctly" do
+      expect do
+        silence_stdout { MigratePollsData.new.up }
+      end.to \
+        change { Poll.count }.by(1) &
+        change { PollOption.count }.by(7) &
+        change { PollVote.count }.by(1)
+
+      poll = Poll.find_by(name: "poll", post: post)
+
+      expect(poll.close_at).to eq(nil)
+
+      expect(Poll.pluck(:type, :status, :results, :visibility).first).to eq([
+        Poll.types[:number],
+        Poll.statuses[:open],
+        Poll.results[:always],
+        Poll.visibilities[:secret]
+      ])
+
+      expect(poll.min).to eq(1)
+      expect(poll.max).to eq(20)
+      expect(poll.step).to eq(3)
+
+      expect(PollOption.all.pluck(:digest, :html)).to eq([
+        ["4d8a15e3cc35750f016ce15a43937620", "1"],
+        ["aa2393b424f2f395abb63bf785760a3b", "4"],
+        ["9ab1070dec27185440cdabb4948a5e9a", "7"],
+        ["46c01f638a50d86e020f47469733b8be", "10"],
+        ["b4f15431e07443c372d521e4ed131abe", "13"],
+        ["4e885ead68ff4456f102843df9fbbd7f", "16"],
+        ["eb8661f072794ea57baa7827cd8ffc88", "19"]
+      ])
+
+      poll_vote = PollVote.first
+
+      expect(poll_vote.poll).to eq(poll)
+      expect(poll_vote.poll_option.html).to eq("7")
+      expect(poll_vote.user).to eq(user)
+    end
+  end
+
   describe 'for a multiple poll' do
     before do
       post.custom_fields = {
@@ -52,7 +128,9 @@ RSpec.describe MigratePollsData do
             "name" => "testing",
             "status" => "closed",
             "type" => "multiple",
-            "public" => "true"
+            "public" => "true",
+            "min" => 1,
+            "max" => 2
           }
         }
       }
@@ -60,7 +138,7 @@ RSpec.describe MigratePollsData do
       post.save_custom_fields
     end
 
-    it 'should migrate the data properly' do
+    it 'should migrate the data correctly' do
       expect do
         silence_stdout { MigratePollsData.new.up }
       end.to \
@@ -81,8 +159,8 @@ RSpec.describe MigratePollsData do
         Poll.visibilities[:everyone]
       ])
 
-      expect(poll.min).to eq(nil)
-      expect(poll.max).to eq(nil)
+      expect(poll.min).to eq(1)
+      expect(poll.max).to eq(2)
       expect(poll.step).to eq(nil)
 
       poll_options = PollOption.all
@@ -176,7 +254,7 @@ RSpec.describe MigratePollsData do
       post.save_custom_fields
     end
 
-    it 'should migrate the data properly' do
+    it 'should migrate the data correctly' do
       expect do
         silence_stdout { MigratePollsData.new.up }
       end.to \
