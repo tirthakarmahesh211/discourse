@@ -345,10 +345,9 @@ after_initialize do
     has_many :polls, dependent: :destroy
 
     after_save do
-      next if self.extracted_polls.blank? || !self.extracted_polls.is_a?(Hash)
-
-      post = self
       polls = self.extracted_polls
+      next if polls.blank? || !polls.is_a?(Hash)
+      post = self
 
       Poll.transaction do
         polls.values.each do |poll|
