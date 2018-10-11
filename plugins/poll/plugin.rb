@@ -229,7 +229,7 @@ after_initialize do
 
       def create!(post_id, poll)
         close_at = begin
-          Time.zone.parse(poll["close"])
+          Time.zone.parse(poll["close"] || '')
         rescue ArgumentError
         end
 
