@@ -437,9 +437,9 @@ after_initialize do
     @polls ||= begin
       polls = {}
 
-      post_with_polls = @post_custom_fields
-        .select { |_, custom_fields| custom_fields[DiscoursePoll::HAS_POLLS] }
-        .map { |post_id| post_id }
+      post_with_polls = @post_custom_fields.each_with_object do |_, custom_fields, obj|
+        obj << post_id if custom_fields[DiscoursePoll::HAS_POLLS]
+      end
 
       if post_with_polls.present?
         Poll
@@ -477,12 +477,13 @@ after_initialize do
 
   add_to_serializer(:post, :polls_votes, false) do
     preloaded_polls.map do |poll|
-      [
-        poll.name,
-        poll.poll_votes
-          .select { |v| v.user_id == scope.user.id }
-          .map { |v| v.poll_option.digest }
-      ]
+      user_poll_votes = poll.poll_votes.each_with_object([]) do |vote, obj|
+        if vote.user_id == scope.user.id
+          obj << vote.poll_option.digest
+        end
+      end
+
+      [poll.name, user_poll_votes]
     end.to_h
   end
 
