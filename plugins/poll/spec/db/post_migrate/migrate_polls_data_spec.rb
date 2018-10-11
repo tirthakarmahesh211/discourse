@@ -120,6 +120,26 @@ RSpec.describe MigratePollsData do
     before do
       post.custom_fields = {
         "polls" => {
+          "testing" => {
+            "options" => [
+              {
+                "id" => "e94c09aae2aa071610212a5c5042111b",
+                "html" => "Yes",
+                "votes" => 0,
+                "voter_ids" => []
+              },
+              {
+                "id" => "802c50392a68e426d4b26d81ddc5ab33",
+                "html" => "No",
+                "votes" => 0,
+                "voter_ids" => []
+              }
+            ],
+            "voters" => 0,
+            "name" => "testing",
+            "status" => "open",
+            "type" => "regular"
+          },
           "poll" => {
             "options" =>  [
               {
@@ -160,17 +180,23 @@ RSpec.describe MigratePollsData do
       expect do
         silence_stdout { MigratePollsData.new.up }
       end.to \
-        change { Poll.count }.by(1) &
-        change { PollOption.count }.by(2) &
+        change { Poll.count }.by(2) &
+        change { PollOption.count }.by(4) &
         change { PollVote.count }.by(5)
 
-      poll = Poll.last
+      poll = Poll.find_by(name: "poll")
 
       expect(poll.post_id).to eq(post.id)
-      expect(poll.name).to eq("poll")
       expect(poll.close_at).to eq("2018-10-08T00:00:00.000Z")
 
-      expect(Poll.pluck(:type, :status, :results, :visibility).first).to eq([
+      expect(
+        Poll.where(name: "poll").pluck(
+          :type,
+          :status,
+          :results,
+          :visibility
+        ).first
+      ).to eq([
         Poll.types[:regular],
         Poll.statuses[:open],
         Poll.results[:always],
@@ -181,16 +207,14 @@ RSpec.describe MigratePollsData do
       expect(poll.max).to eq(nil)
       expect(poll.step).to eq(nil)
 
-      poll_options = PollOption.all.to_a
-      option_1 = poll_options.first
+      poll_options = PollOption.where(poll_id: poll.id).to_a
+      expect(poll_options.size).to eq(2)
 
-      expect(option_1.poll_id).to eq(poll.id)
+      option_1 = poll_options.first
       expect(option_1.digest).to eq("edeee5dae4802ab24185d41039efb545")
       expect(option_1.html).to eq("Yes")
 
       option_2 = poll_options.last
-
-      expect(option_2.poll_id).to eq(poll.id)
       expect(option_2.digest).to eq("38d8e35c8fc80590f836f22189064835")
       expect(option_2.html).to eq("No")
 
@@ -205,6 +229,40 @@ RSpec.describe MigratePollsData do
         expect(PollVote.exists?(poll_option_id: option_2.id, user_id: user.id))
           .to eq(true)
       end
+
+      poll = Poll.find_by(name: "testing")
+
+      expect(poll.post_id).to eq(post.id)
+      expect(poll.close_at).to eq(nil)
+
+      expect(
+        Poll.where(name: "testing").pluck(
+          :type,
+          :status,
+          :results,
+          :visibility
+        ).first
+      ).to eq([
+        Poll.types[:regular],
+        Poll.statuses[:open],
+        Poll.results[:always],
+        Poll.visibilities[:secret]
+      ])
+
+      expect(poll.min).to eq(nil)
+      expect(poll.max).to eq(nil)
+      expect(poll.step).to eq(nil)
+
+      poll_options = PollOption.where(poll: poll).to_a
+      expect(poll_options.size).to eq(2)
+
+      option_1 = poll_options.first
+      expect(option_1.digest).to eq("e94c09aae2aa071610212a5c5042111b")
+      expect(option_1.html).to eq("Yes")
+
+      option_2 = poll_options.last
+      expect(option_2.digest).to eq("802c50392a68e426d4b26d81ddc5ab33")
+      expect(option_2.html).to eq("No")
     end
   end
 end
