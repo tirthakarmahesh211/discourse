@@ -10,8 +10,8 @@ export default Ember.Controller.extend({
   multiplePollType: "multiple",
 
   alwaysPollResult: "always",
-  votePollResult: "vote",
-  closedPollResult: "closed",
+  votePollResult: "on_vote",
+  closedPollResult: "on_close",
 
   init() {
     this._super();
