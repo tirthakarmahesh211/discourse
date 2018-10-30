@@ -105,7 +105,7 @@ class Auth::GithubAuthenticator < Auth::Authenticator
       # configured).  When no whitelist/blacklist is in play, this will simply
       # choose the primary email since it's at the front of the list.
       if !user
-        validator = EmailValidator.new(attributes: :email)
+        validator = ::DiscourseEmailValidator.new(attributes: :email)
         found_email = false
         all_emails.each do |candidate|
           checker = GithubEmailChecker.new(validator, candidate[:email])

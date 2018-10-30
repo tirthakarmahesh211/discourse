@@ -1,7 +1,7 @@
 require_dependency 'jobs/base'
 require_dependency 'email'
 require_dependency 'email_token'
-require_dependency 'email_validator'
+require_dependency 'discourse_email_validator'
 require_dependency 'trust_level'
 require_dependency 'pbkdf2'
 require_dependency 'discourse'
@@ -967,7 +967,7 @@ class User < ActiveRecord::Base
   end
 
   def find_email
-    last_sent_email_address.present? && EmailValidator.email_regex =~ last_sent_email_address ? last_sent_email_address : email
+    last_sent_email_address.present? && ::DiscourseEmailValidator.email_regex =~ last_sent_email_address ? last_sent_email_address : email
   end
 
   def tl3_requirements

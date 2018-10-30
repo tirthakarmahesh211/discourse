@@ -327,7 +327,7 @@ class BulkImport::Base
     user[:email].downcase!
 
     # unique email
-    user[:email] = random_email until user[:email] =~ EmailValidator.email_regex && @emails.add?(user[:email])
+    user[:email] = random_email until user[:email] =~ ::DiscourseEmailValidator.email_regex && @emails.add?(user[:email])
     user[:trust_level] ||= TrustLevel[1]
     user[:active] = true unless user.has_key?(:active)
     user[:admin] ||= false

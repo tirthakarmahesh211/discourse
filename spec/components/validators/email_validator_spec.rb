@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe EmailValidator do
+describe ::DiscourseEmailValidator do
 
   let(:record) {}
   let(:validator) { described_class.new(attributes: :email) }
@@ -8,7 +8,7 @@ describe EmailValidator do
 
   def blocks?(email)
     user = Fabricate.build(:user, email: email)
-    validator = EmailValidator.new(attributes: :email)
+    validator = ::DiscourseEmailValidator.new(attributes: :email)
     validator.validate_each(user, :email, user.email)
     user.errors[:email].present?
   end
@@ -46,12 +46,12 @@ describe EmailValidator do
 
   context '.email_regex' do
     it 'should match valid emails' do
-      expect(!!('test@discourse.org' =~ EmailValidator.email_regex)).to eq(true)
+      expect(!!('test@discourse.org' =~ ::DiscourseEmailValidator.email_regex)).to eq(true)
     end
 
     it 'should not match invalid emails' do
       ['testdiscourse.org', 'test@discourse.org; a@discourse.org', 'random'].each do |email|
-        expect(!!(email =~ EmailValidator.email_regex)).to eq(false)
+        expect(!!(email =~ ::DiscourseEmailValidator.email_regex)).to eq(false)
       end
     end
   end

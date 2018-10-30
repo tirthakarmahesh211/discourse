@@ -1,4 +1,4 @@
-require_dependency 'email_validator'
+require_dependency 'discourse_email_validator'
 
 class UserEmail < ActiveRecord::Base
   belongs_to :user
@@ -8,7 +8,7 @@ class UserEmail < ActiveRecord::Base
   before_validation :strip_downcase_email
 
   validates :email, presence: true
-  validates :email, email: true, format: { with: EmailValidator.email_regex },
+  validates :email, discourse_email: true, format: { with: ::DiscourseEmailValidator.email_regex },
                     if: :validate_email?
 
   validates :primary, uniqueness: { scope: [:user_id] }, if: [:user_id, :primary]

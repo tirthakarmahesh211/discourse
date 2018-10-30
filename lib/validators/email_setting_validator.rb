@@ -4,7 +4,7 @@ class EmailSettingValidator
   end
 
   def valid_value?(val)
-    !val.present? || !!(EmailValidator.email_regex =~ val)
+    !val.present? || !!(::DiscourseEmailValidator.email_regex =~ val)
   end
 
   def error_message

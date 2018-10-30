@@ -1,7 +1,7 @@
-class EmailValidator < ActiveModel::EachValidator
+class DiscourseEmailValidator < ActiveModel::EachValidator
 
   def validate_each(record, attribute, value)
-    unless EmailValidator.allowed?(value)
+    unless DiscourseEmailValidator.allowed?(value)
       record.errors.add(attribute, I18n.t(:'user.email.not_allowed'))
     end
 

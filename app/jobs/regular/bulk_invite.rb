@@ -33,7 +33,7 @@ module Jobs
       file = File.open(csv_path, encoding: 'bom|utf-8')
       CSV.new(file).each do |csv_info|
         if csv_info[0]
-          if (EmailValidator.email_regex =~ csv_info[0])
+          if (::DiscourseEmailValidator.email_regex =~ csv_info[0])
             # email is valid
             send_invite(csv_info, $INPUT_LINE_NUMBER)
             @sent += 1

@@ -503,7 +503,7 @@ module Email
         user = User.find_by_email(email)
 
         if user.nil? && SiteSetting.enable_staged_users
-          raise EmailNotAllowed unless EmailValidator.allowed?(email)
+          raise EmailNotAllowed unless ::DiscourseEmailValidator.allowed?(email)
 
           username = UserNameSuggester.sanitize_username(display_name) if display_name.present?
           begin

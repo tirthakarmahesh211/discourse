@@ -1,6 +1,6 @@
 require_dependency 'email'
 require_dependency 'has_errors'
-require_dependency 'email_validator'
+require_dependency 'discourse_email_validator'
 
 class EmailUpdater
   include HasErrors
@@ -24,7 +24,7 @@ class EmailUpdater
     @guardian.ensure_can_edit_email!(@user)
 
     email = Email.downcase(email_input.strip)
-    EmailValidator.new(attributes: :email).validate_each(self, :email, email)
+    ::DiscourseEmailValidator.new(attributes: :email).validate_each(self, :email, email)
 
     if existing_user = User.find_by_email(email)
       if SiteSetting.hide_email_address_taken

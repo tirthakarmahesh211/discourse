@@ -149,7 +149,7 @@ EOM
 
       create_users(users, total: user_count, offset: offset) do |user|
         email = user["email"].presence || fake_email
-        email = fake_email unless email[EmailValidator.email_regex]
+        email = fake_email unless email[::DiscourseEmailValidator.email_regex]
 
         password = [user["password"].presence, user["salt"].presence].compact.join(":")
 

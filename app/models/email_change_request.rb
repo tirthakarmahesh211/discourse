@@ -1,4 +1,4 @@
-require_dependency 'email_validator'
+require_dependency 'discourse_email_validator'
 
 class EmailChangeRequest < ActiveRecord::Base
   belongs_to :old_email_token, class_name: 'EmailToken'
@@ -6,7 +6,7 @@ class EmailChangeRequest < ActiveRecord::Base
   belongs_to :user
 
   validates :old_email, presence: true
-  validates :new_email, presence: true, format: { with: EmailValidator.email_regex }
+  validates :new_email, presence: true, format: { with: ::DiscourseEmailValidator.email_regex }
 
   def self.states
     @states ||= Enum.new(authorizing_old: 1, authorizing_new: 2, complete: 3)

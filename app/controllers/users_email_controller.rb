@@ -1,5 +1,5 @@
 require_dependency 'rate_limiter'
-require_dependency 'email_validator'
+require_dependency 'discourse_email_validator'
 require_dependency 'email_updater'
 
 class UsersEmailController < ApplicationController

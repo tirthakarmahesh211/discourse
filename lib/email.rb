@@ -8,7 +8,7 @@ module Email
 
   def self.is_valid?(email)
     return false unless String === email
-    !!(EmailValidator.email_regex =~ email)
+    !!(::DiscourseEmailValidator.email_regex =~ email)
   end
 
   def self.downcase(email)

@@ -311,7 +311,7 @@ class ImportScripts::Base
       opts[:username] = UserNameSuggester.suggest(opts[:username] || opts[:name].presence || opts[:email])
     end
 
-    unless opts[:email][EmailValidator.email_regex]
+    unless opts[:email][::DiscourseEmailValidator.email_regex]
       opts[:email] = fake_email
       puts "Invalid email #{original_email} for #{opts[:username]}. Using: #{opts[:email]}"
     end
