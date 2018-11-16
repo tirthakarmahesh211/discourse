@@ -39,7 +39,7 @@ export default Ember.Component.extend(
         notices.push([requiredText, "alert-wizard"]);
       }
       ******/
-
+      /****
       if (
         this.currentUser &&
         this.currentUser.get("staff") &&
@@ -59,6 +59,7 @@ export default Ember.Component.extend(
           ]);
         }
       }
+      ****/
 
       if (!_.isEmpty(this.siteSettings.global_notice)) {
         notices.push([this.siteSettings.global_notice, "alert-global-notice"]);
