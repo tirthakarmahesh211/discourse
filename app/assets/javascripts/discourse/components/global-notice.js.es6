@@ -31,12 +31,14 @@ export default Ember.Component.extend(
         notices.push([I18n.t("emails_are_disabled"), "alert-emails-disabled"]);
       }
 
+      /******
       if (this.site.get("wizard_required")) {
         const requiredText = I18n.t("wizard_required", {
           url: Discourse.getURL("/wizard")
         });
         notices.push([requiredText, "alert-wizard"]);
       }
+      ******/
 
       if (
         this.currentUser &&
