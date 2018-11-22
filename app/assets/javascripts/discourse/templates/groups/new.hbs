@@ -3,13 +3,17 @@
 
   <hr/>
 
-  <form class="groups-form form-vertical">
+  <div class="col-md-6 col-sm-12 ">
+
+  <form class="groups-form  form-vertical">
+      <div class="form-group">
+
     {{#groups-form-profile-fields model=model disableSave=saving}}
       <div class="control-group">
         <label class="control-label" for="owner-selector">{{i18n 'admin.groups.add_owners'}}</label>
 
         {{user-selector usernames=model.ownerUsernames
-            class="input-xxlarge"
+            class="input-xxlarge form-control"
             placeholderKey="groups.selector_placeholder"
             id="owner-selector"}}
       </div>
@@ -37,5 +41,7 @@
         {{i18n 'cancel'}}
       {{/link-to}}
     </div>
+    </div>
   </form>
+  </div>
 {{/d-section}}

@@ -7,40 +7,39 @@
           label="admin.groups.new.title"}}
     {{/if}}
 
-    <div class="groups-header-filters">
-      {{text-field value=filterInput
-          placeholderKey="groups.index.all"
-          class="groups-header-filters-name no-blur"}}
 
-      {{combo-box value=type
-                  content=types
-                  clearable=true
-                  allowAutoSelectFirst=false
-                  noneLabel="groups.index.filter"
-                  class="groups-header-filters-type"}}
-    </div>
+        <div class="groups-header-filters">
+              <div class="col-lg-12">
+                <div class="row">
+                  <div class="col-lg-6">
+                  {{text-field value=filterInput
+                      placeholderKey="groups.index.all"
+                      class="groups-header-filters-name form-control no-blur"}}
+                  </div>
+                  <div class="col-lg-6">
+                  {{combo-box value=type
+                              content=types
+                              clearable=true
+                              allowAutoSelectFirst=false
+                              noneLabel="groups.index.filter"
+                              class="groups-header-filters-type "}}
+                  </div>
+               </div>
+            </div> 
+        </div>
   </div>
 
   {{#if model}}
     {{#conditional-loading-spinner condition=model.loading}}
       {{#load-more selector=".groups-table .groups-table-row" action="loadMore"}}
         <div class='container'>
-          <table class="groups-table">
-            <thead>
-              <tr>
-                {{directory-toggle field="name" labelKey="groups.group_name" order=order asc=asc}}
-                
-                {{!--{{directory-toggle field="user_count" labelKey="groups.user_count" order=order asc=asc}}
-                <th>{{i18n "groups.index.group_type"}}</th>
-                <th>{{i18n "groups.membership"}}</th>
-                --}}
-              </tr>
-            </thead>
-
-            <tbody>
+        <div class="col-md-4"> 
+        <div class="panel panel-primary">
+          <div class="panel-heading">{{directory-toggle field="name" labelKey="groups.group_name" order=order asc=asc}}</div>
+          <table class=" col-md-3 groups-table table table-condensed">
               {{#each model as |group|}}
                 <tr class="groups-table-row">
-                  <td class="groups-info">
+                  <td class="groups-info success">
                     {{#link-to "group.members" group.name}}
                       {{#if group.flair_url}}
                         <span class='group-avatar-flair'>
@@ -57,7 +56,6 @@
                   </td>
                   {{!--
                   <td class="groups-user-count">{{group.user_count}}</td>
-
                   <td class="groups-table-type">
                     {{#if group.public_admission}}
                       {{i18n 'groups.index.public'}}
@@ -88,9 +86,10 @@
                   </td>
                   --}}
                 </tr>
-              {{/each}}
-            </tbody>
+              {{/each}} 
           </table>
+        </div>
+        </div>
         </div>
       {{/load-more}}
 

@@ -43,7 +43,7 @@ QUnit.test("Creating a new group", async assert => {
 
   await fillIn(
     "input[name='name']",
-    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+
   );
 
   assert.equal(

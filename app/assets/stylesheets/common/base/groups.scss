@@ -39,7 +39,14 @@
   }
 
   tr {
+    &:hover {
+      background-color: $primary-low;
+      cursor: pointer;}
     td {
+    &:hover {
+      background-color: $primary-low;
+      cursor: pointer;
+      }
       padding: 0.8em;
       color: $primary-medium;
     }

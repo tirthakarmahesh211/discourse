@@ -52,11 +52,11 @@ Discourse::Application.configure do
     config.developer_emails = emails.split(",").map(&:downcase).map(&:strip)
   end
 
-  if defined?(Rails::Server) || defined?(Puma) || defined?(Unicorn)
-    require 'stylesheet/watcher'
-    STDERR.puts "Starting CSS change watcher"
-    @watcher = Stylesheet::Watcher.watch
-  end
+  # if defined?(Rails::Server) || defined?(Puma) || defined?(Unicorn)
+  #   require 'stylesheet/watcher'
+  #   STDERR.puts "Starting CSS change watcher"
+  #   @watcher = Stylesheet::Watcher.watch
+  # end
 
   config.after_initialize do
     if ENV['BULLET']
